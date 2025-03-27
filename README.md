@@ -69,7 +69,7 @@ You can install Postman via this website: https://www.postman.com/downloads/
     -   [x] Commit: `Implement notify function in Notification service to notify each Subscriber.`
     -   [x] Commit: `Implement publish function in Program service and Program controller.`
     -   [x] Commit: `Edit Product service methods to call notify after create/delete.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-3" questions in this README.
+    -   [x] Write answers of your learning module's "Reflection Publisher-3" questions in this README.
 
 ## Your Reflections
 This is the place for you to write reflections:
@@ -103,3 +103,16 @@ Jika kita hanya mengandalkan Model tanpa Service dan Repository, maka kompleksit
 Sebelumnya, saya sudah pernah sedikit mencoba dan mengeksplorasi Postman saat mata kuliah pemrograman berbasis platform (pbp). Menurut saya, Postman sangat membantu dalam pengujian sistem notifikasi BambangShop. Dengan Postman, saya bisa dengan mudah mengirim permintaan HTTP ke aplikasi publisher dan subscriber tanpa perlu membuat interface frontend terlebih dahulu. Selain itu, adanya fitur visualisasi request dan response sangat membantu dalam menganalisis dan mengidentifikasi kesalahan pada implementasi API dengan lebih cepat.
 
 #### Reflection Publisher-3
+>Observer Pattern has two variations: Push model (publisher pushes data to subscribers) and Pull model (subscribers pull data from publisher). In this tutorial case, which variation of Observer Pattern that we use?
+ 
+Pada project ini, observer pattern yang digunakan adalah Push Model yang diimplementasikan via notification dimana publisher mengirimkan permintaan HTTP Post notifikasi ke semua subscribers setiap kali ada modifikasi terhadap sebuah produk. Hal ini dapat terlihat dari terdapatnya kode `NotificationService::notify()` di `src/service/product.rs`.
+
+intinya, Publisher (aplikasi utama) menyimpan daftar subscriber beserta URL mereka, dan publisher bertanggung jawab untuk memberi tahu setiap subscriber dengan mengirimkan data notifikasi melalui metode update() milik subscriber. Subscriber sendiri tidak perlu melakukan pengecekan secara berkala, mereka hanya menunggu hingga mendapatkan notifikasi melalui endpoint /receive. Dari cara kerja yang sudah saya sebutkan tadi, saya bisa kembali menyimpulkan bahwa pendekatan yang digunakan adalah Push model, di mana inisiatif komunikasi berasal dari sisi publisher, dan data langsung dikirimkan ke subscriber tanpa perlu diminta terlebih dahulu.
+
+>What are the advantages and disadvantages of using the other variation of Observer Pattern for this tutorial case? (example: if you answer Q1 with Push, then imagine if we used Pull)
+
+Jika menggunakan pull, terdapat beberapa keuntungan seperti berkurangnya redundansi transfer data, lebih banyak kontrol pada observer sehingga aplikasi lebih ringan, dan yang utamanya itu kita tidak harus mengirimkan notifikasi kepada setiap Subscriber tiap kali ada perubahan pada product, melainkan subscribernya itu bebas kapan saja request perubahan kepada product terkait. Sementara sisi kekurangan yang bakal terjadi, Subscriber harus terus-menerus mengirim permintaan (polling) ke aplikasi utama, yang bisa menyebabkan lalu lintas jaringan yang tidak perlu jika tidak ada pembaruan. Kemudian ada juga potensi notifikasi tidak langsung diterima subscriber, karena mereka baru mendapatkan pembaruan saat polling berikutnya, sehingga ada latensi dalam penyampaian informasi.
+
+>Explain what will happen to the program if we decide to not use multi-threading in the notification process.
+
+kalau kita memilih atau memutuskan untuk tidak menggunakan multi-threading dalam program, maka kinerjanya akan menjadi lambat karena notifikasi diproses secara berurutan, literally satu per satu. Jika jumlah subscriber banyak, sistem akan berjalan lebih lambat karena setiap proses harus menunggu proses sebelumnya selesai. Namun, dengan multi-threading, notifikasi dapat dikirim secara paralel, sehingga tidak mengganggu aplikasi utama dan dapat meningkatkan kinerja sistem secara keseluruhan. contoh simplenya, contoh simplenya, Jika setiap notifikasi membutuhkan waktu 750ms untuk dikirim, maka memberi tahu 100 subscriber akan memakan waktu 75 detik sebelum pengguna mendapatkan respons dari sistem. Thread utama akan terblokir, sehingga aplikasi tidak bisa menangani permintaan lain selama proses notifikasi berlangsung.
