@@ -63,7 +63,7 @@ You can install Postman via this website: https://www.postman.com/downloads/
     -   [x] Commit: `Implement subscribe function in Notification controller.`
     -   [x] Commit: `Implement unsubscribe function in Notification service.`
     -   [x] Commit: `Implement unsubscribe function in Notification controller.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-2" questions in this README.
+    -   [x] Write answers of your learning module's "Reflection Publisher-2" questions in this README.
 -   **STAGE 3: Implement notification mechanism**
     -   [ ] Commit: `Implement update method in Subscriber model to send notification HTTP requests.`
     -   [ ] Commit: `Implement notify function in Notification service to notify each Subscriber.`
@@ -90,5 +90,16 @@ Menurut saya, penggunaan DashMap lebih tepat dibandingkan Vec, karena kita membu
 kalau diliat lagi, dalam `repository/subscriber.rs` sudah diimplementasikan `lazy_static!` yang membuat satu static instance dari DashMap yang mana merupakan cara pengimplementasian singleton pattern sehingga dalam App ini, DashMap dan Singleton pattern diimplementasikan secara bersamaan. Namun, hanya menggunakan Singleton saja tidak cukup untuk menangani akses data secara bersamaan (concurrent access) di aplikasi web. DashMap lebih unggul karena sudah mendukung mekanisme thread-safe dengan locking yang lebih efisien dibandingkan jika kita harus membuatnya sendiri menggunakan Mutex atau RwLock. Jadi, menurut saya tetap menggunakan DashMap adalah pilihan yang lebih mudah, praktis, dan optimal.
 
 #### Reflection Publisher-2
+>In the Model-View Controller (MVC) compound pattern, there is no “Service” and “Repository”. Model in MVC covers both data storage and business logic. Explain based on your understanding of design principles, why we need to separate “Service” and “Repository” from a Model?
+ 
+perlakuan pemisahan antara Repository dan Service ini sebenarnya lebih berkaitan kuat dengan salah satu SOLID Principle yaitu Single Responsibility Principle (SRP), dimana terdapat pemisahan yang jelas untuk perilaku yang berbeda. Model hanya berfungsi dalam representasi data saja sedangkan Repository menangani interaksi dengan menyimpan dan modifikasi data. Service berfokus kepada logika bisnis tanpa mengubah data yang ada. Dengan pendekatan ini, kode menjadi lebih modular dan lebih mudah di-maintain.
+
+>What happens if we only use the Model? Explain your imagination on how the interactions between each model (Program, Subscriber, Notification) affect the code complexity for each model?
+
+Jika kita hanya mengandalkan Model tanpa Service dan Repository, maka kompleksitas kode akan meningkat drastis. Model bakal bekerja sangat keras menangani logika bisnis, pengambilan data, dan juga pengiriman notifikasi dalam satu tempat. Yang seperti ini justru juga melanggar prinsip SRP yang sempat saya mention di soal sebelumnya. Jika terdapat _update_ ke salah satu method, maka akan sangat banyak yang harus di-fix karena banyak code yang saling terkait. Istilah ini sering juga disebut dengna _shotgun surgery_. 
+
+>Have you explored more about Postman? Tell us how this tool helps you to test your current work. You might want to also list which features in Postman you are interested in or feel like it is helpful to help your Group Project or any of your future software engineering projects.
+
+Sebelumnya, saya sudah pernah sedikit mencoba dan mengeksplorasi Postman saat mata kuliah pemrograman berbasis platform (pbp). Menurut saya, Postman sangat membantu dalam pengujian sistem notifikasi BambangShop. Dengan Postman, saya bisa dengan mudah mengirim permintaan HTTP ke aplikasi publisher dan subscriber tanpa perlu membuat interface frontend terlebih dahulu. Selain itu, adanya fitur visualisasi request dan response sangat membantu dalam menganalisis dan mengidentifikasi kesalahan pada implementasi API dengan lebih cepat.
 
 #### Reflection Publisher-3
